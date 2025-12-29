@@ -1,0 +1,20 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Paste {
+  id           String   @id @default(cuid())
+  content      String
+  ttlSeconds   Int?     // optional TTL in seconds
+  maxViews     Int?     // optional maximum number of views
+  remainingViews Int?   // remaining views (null means unlimited)
+  createdAt    DateTime @default(now())
+}
