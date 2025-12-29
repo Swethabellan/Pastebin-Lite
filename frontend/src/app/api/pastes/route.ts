@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { error: "Invalid JSON body" },
+      { error: "Invalid request format. Please check your input and try again." },
       { status: 400 }
     );
   }
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   if (typeof content !== "string" || content.trim().length === 0) {
     return NextResponse.json(
-      { error: "content is required and must be a non-empty string" },
+      { error: "Content is required. Please enter some text to create a paste." },
       { status: 400 }
     );
   }
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       ttl_seconds < 1
     ) {
       return NextResponse.json(
-        { error: "ttl_seconds must be an integer >= 1 when provided" },
+        { error: "Time-to-Live must be a positive integer (e.g., 3600 for 1 hour)." },
         { status: 400 }
       );
     }
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       max_views < 1
     ) {
       return NextResponse.json(
-        { error: "max_views must be an integer >= 1 when provided" },
+        { error: "Max Views must be a positive integer (e.g., 10)." },
         { status: 400 }
       );
     }

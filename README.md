@@ -1,9 +1,26 @@
-## PastePin Lite
+# PastePin Lite
 
-A small Pastebin-like application built with Next.js (App Router) and Prisma.  
-Users can create text pastes, optionally configure a time-to-live (TTL) and/or max view count, and share a URL to view the paste.
+A minimal Pastebin-like application built with Next.js (App Router) and Prisma. Users can create text pastes, optionally configure a time-to-live (TTL) and/or maximum view count, and share a URL for others to view the paste. Pastes are automatically deleted when they expire or reach their view limit.
 
-### How to run locally
+## Project Description
+
+PastePin Lite is a full-stack web application that allows users to:
+- Create text pastes with optional expiration times (TTL in seconds)
+- Set maximum view limits for pastes
+- Share pastes via unique URLs
+- View pastes with real-time expiration and view count information
+
+The application features a clean, modern UI built with React, TypeScript, and Tailwind CSS, with comprehensive error handling for expired or deleted pastes.
+
+## Running the Project Locally
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- PostgreSQL database (running locally or remotely)
+- npm or yarn package manager
+
+### Setup Instructions
 
 1. **Install dependencies**
 
@@ -12,20 +29,24 @@ Users can create text pastes, optionally configure a time-to-live (TTL) and/or m
    npm install
    ```
 
-2. **Configure the database URL**
+2. **Configure the database connection**
 
-   Create a `.env` file in the `frontend` folder (if it does not already exist) and set your PostgreSQL connection string, for example:
+   Create a `.env` file in the `frontend` folder and add your PostgreSQL connection string:
 
    ```bash
    DATABASE_URL="postgresql://user:password@localhost:5432/pastepin?schema=public"
    ```
 
+   Replace `user`, `password`, `localhost`, `5432`, and `pastepin` with your actual PostgreSQL credentials and database name.
+
 3. **Run database migrations**
 
    ```bash
    cd frontend
-   npx prisma migrate dev --name init
+   npx prisma migrate dev
    ```
+
+   This will create the necessary database tables and apply all migrations.
 
 4. **Start the development server**
 
@@ -34,12 +55,30 @@ Users can create text pastes, optionally configure a time-to-live (TTL) and/or m
    npm run dev
    ```
 
-5. Open `http://localhost:3000` in your browser.
+5. **Open the application**
 
-### Persistence layer
+   Navigate to `http://localhost:3000` in your browser to start using the application.
 
-The app uses **Prisma** with a **PostgreSQL** database as the persistence layer.  
-All pastes (including their TTL and view-limit metadata) are stored in this database, so they survive across requests and server restarts in local development (as long as your Postgres instance is running).
+### Additional Commands
+
+- **Build for production**: `npm run build`
+- **Start production server**: `npm run start`
+- **Run linting**: `npm run lint`
+
+## Persistence Layer
+
+This application uses **Prisma ORM** with a **PostgreSQL** database as its persistence layer. 
+
+- **Prisma** provides type-safe database access and schema management
+- **PostgreSQL** stores all paste data, including:
+  - Paste content
+  - Unique identifiers (CUID)
+  - Time-to-live (TTL) settings
+  - Maximum view limits
+  - Remaining view counts
+  - Creation timestamps
+
+All data persists across server restarts and requests, ensuring that pastes remain available until they expire or reach their view limit. The database schema is managed through Prisma migrations, which are version-controlled and can be applied to any environment.
 
 ### Important design decisions
 

@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -15,7 +14,8 @@ export default async function PastePage({ params }: PastePageProps) {
   const { id } = await params;
 
   const hdrs = await headers();
-  const dummyReq = new Request("http://localhost", {
+  // Use relative URL instead of hardcoded localhost - the URL doesn't matter as we only use headers
+  const dummyReq = new Request("/", {
     headers: hdrs,
   });
   const nowMs = getCurrentTimeMs(dummyReq);
@@ -25,7 +25,7 @@ export default async function PastePage({ params }: PastePageProps) {
   });
 
   if (!paste) {
-    notFound();
+    throw new Error("Paste not found: This paste doesn't exist or may have been deleted.");
   }
 
   const createdMs = paste.createdAt.getTime();
@@ -34,7 +34,10 @@ export default async function PastePage({ params }: PastePageProps) {
   if (paste.ttlSeconds != null) {
     const expiresMs = createdMs + paste.ttlSeconds * 1000;
     if (nowMs >= expiresMs) {
-      notFound();
+      const expiredMinutesAgo = Math.floor((nowMs - expiresMs) / 1000 / 60);
+      throw new Error(
+        `Paste expired: This paste expired ${expiredMinutesAgo} minute${expiredMinutesAgo !== 1 ? "s" : ""} ago. Pastes with a time-to-live (TTL) setting are automatically deleted after the specified duration.`
+      );
     }
   }
 
@@ -55,7 +58,9 @@ export default async function PastePage({ params }: PastePageProps) {
     
     // Check if views are exhausted
     if (currentRemainingViews <= 0) {
-      notFound();
+      throw new Error(
+        `View limit reached: This paste has reached its maximum view limit of ${paste.maxViews} view${paste.maxViews !== 1 ? "s" : ""} and is no longer available.`
+      );
     }
     
     // Decrement the view count

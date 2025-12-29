@@ -30,14 +30,37 @@ export default function Home() {
     setSubmitting(true);
 
     try {
-      const body: Record<string, unknown> = {
-        content,
-      };
-      if (ttlSeconds.trim().length > 0) {
-        body.ttl_seconds = Number(ttlSeconds);
+      // Client-side validation
+      if (!content.trim()) {
+        setError("Content is required. Please enter some text.");
+        setSubmitting(false);
+        return;
       }
+
+      const body: Record<string, unknown> = {
+        content: content.trim(),
+      };
+      
+      // Validate TTL
+      if (ttlSeconds.trim().length > 0) {
+        const ttl = Number(ttlSeconds);
+        if (isNaN(ttl) || !Number.isInteger(ttl) || ttl < 1) {
+          setError("Time-to-Live must be a positive integer (e.g., 3600 for 1 hour).");
+          setSubmitting(false);
+          return;
+        }
+        body.ttl_seconds = ttl;
+      }
+      
+      // Validate Max Views
       if (maxViews.trim().length > 0) {
-        body.max_views = Number(maxViews);
+        const max = Number(maxViews);
+        if (isNaN(max) || !Number.isInteger(max) || max < 1) {
+          setError("Max Views must be a positive integer (e.g., 10).");
+          setSubmitting(false);
+          return;
+        }
+        body.max_views = max;
       }
 
       const res = await fetch("/api/pastes", {
