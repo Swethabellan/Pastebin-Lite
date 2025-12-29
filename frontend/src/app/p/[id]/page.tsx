@@ -30,6 +30,7 @@ export default async function PastePage({ params }: PastePageProps) {
 
   const createdMs = paste.createdAt.getTime();
 
+  // Check TTL expiration
   if (paste.ttlSeconds != null) {
     const expiresMs = createdMs + paste.ttlSeconds * 1000;
     if (nowMs >= expiresMs) {
@@ -37,18 +38,34 @@ export default async function PastePage({ params }: PastePageProps) {
     }
   }
 
-  if (paste.maxViews != null && paste.remainingViews != null) {
-    if (paste.remainingViews <= 0) {
+  // Check view limit and decrement if applicable
+  let displayRemainingViews: number | null = null;
+  if (paste.maxViews != null) {
+    let currentRemainingViews = paste.remainingViews;
+    
+    // If remainingViews is null but maxViews is set, initialize it to maxViews
+    // This handles edge cases where data might be inconsistent
+    if (currentRemainingViews === null) {
+      currentRemainingViews = paste.maxViews;
+      await prisma.paste.update({
+        where: { id },
+        data: { remainingViews: paste.maxViews },
+      });
+    }
+    
+    // Check if views are exhausted
+    if (currentRemainingViews <= 0) {
       notFound();
     }
-  }
-
-  if (paste.maxViews != null && paste.remainingViews != null) {
-    const nextRemaining = paste.remainingViews - 1;
+    
+    // Decrement the view count
+    const nextRemaining = currentRemainingViews - 1;
     await prisma.paste.update({
       where: { id },
       data: { remainingViews: nextRemaining },
     });
+    
+    displayRemainingViews = nextRemaining;
   }
 
   const timeAgo = Math.floor((Date.now() - createdMs) / 1000);
@@ -87,10 +104,10 @@ export default async function PastePage({ params }: PastePageProps) {
               <CardTitle className="text-base">Content</CardTitle>
             </div>
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              {paste.maxViews !== null && paste.remainingViews !== null && (
+              {displayRemainingViews !== null && (
                 <span className="flex items-center gap-1.5">
                   <Eye className="h-3.5 w-3.5" />
-                  {paste.remainingViews} view{paste.remainingViews !== 1 ? "s" : ""} remaining
+                  {displayRemainingViews} view{displayRemainingViews !== 1 ? "s" : ""} remaining
                 </span>
               )}
               {paste.ttlSeconds !== null && (() => {
