@@ -141,7 +141,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 1. **Set Environment Variables:**
    - Add your `DATABASE_URL` in Vercel's environment variables settings
-   - For Vercel Postgres, the connection string is automatically provided
+   - For Supabase Postgres, the connection string is automatically provided
 
 2. **Database Migrations:**
    - Run migrations during build or use Vercel's post-deploy hooks
