@@ -81,9 +81,7 @@ export default function Home() {
 
       const data = (await res.json()) as CreateResponse;
       setResult(data);
-      setContent("");
-      setTtlSeconds("");
-      setMaxViews("");
+      // Keep form values filled so user can create another paste with same settings
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Unexpected error occurred"

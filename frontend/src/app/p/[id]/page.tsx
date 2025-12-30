@@ -14,8 +14,8 @@ export default async function PastePage({ params }: PastePageProps) {
   const { id } = await params;
 
   const hdrs = await headers();
-  // Use relative URL instead of hardcoded localhost - the URL doesn't matter as we only use headers
-  const dummyReq = new Request("/", {
+  // Use dummy absolute URL (hostname irrelevant; only headers are used)
+  const dummyReq = new Request("https://example.com/", {
     headers: hdrs,
   });
   const nowMs = getCurrentTimeMs(dummyReq);
