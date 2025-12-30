@@ -1,4 +1,3 @@
-/* Client component for the create-paste form */
 "use client";
 
 import { FormEvent, useState } from "react";
